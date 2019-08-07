@@ -1,0 +1,34 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+  apply from: "./team-props/dependencies.gradle"
+  repositories {
+    google()
+    jcenter()
+    gradlePluginPortal() //https://plugins.gradle.org/m2/
+  }
+  dependencies {
+    for (Map.Entry<String, String> dep : deps) {
+      for (def key : dep) {
+        if (key.value['gradlePlugin'] != null) {
+          logger.quiet("adding gradle plugin: ${key.value['gradlePlugin']} to classpath")
+          classpath key.value['gradlePlugin']
+        }
+      }
+    }
+  }
+}
+
+allprojects {
+  repositories {
+    google()
+    jcenter()
+  }
+}
+//
+//task clean(type: Delete) {
+//    delete rootProject.buildDir
+//}
+
+apply from: "./team-props/bikeshedding.gradle"
+apply from: "./team-props/android_publish.gradle"

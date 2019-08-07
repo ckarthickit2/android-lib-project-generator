@@ -1,0 +1,393 @@
+final GRADLE_TASK_GROUP_VERSIONING = 'versioning'
+
+subprojects {
+  //apply only for library projects
+  project.plugins.withId('com.android.library') {
+
+    //Load Library Props
+    loadLibraryPropsToExt(project)
+
+    project.group = project.groupID
+    project.version = versionName(project)
+
+    apply plugin: 'maven-publish'
+
+    publishing {
+      /**
+       * #################### PUBLICATIONS ###################################
+       */
+      publications {
+
+        "${project.name}Aar"(MavenPublication) {
+          //There are no components defined for android library
+          groupId project.group
+          version project.version
+          artifactId project.name
+          println("Publishable Artifact: <$project.group:$project.name:$project.version>")
+
+          if (android.hasProperty('libraryVariants')) {
+            android.libraryVariants.all { variant ->
+              if (variant.name == 'release') {
+                artifact bundleReleaseAar
+              } else if (variant.name == 'debug') {
+                artifact source: bundleDebugAar, classifier: 'debug'
+              }
+            }
+            pom.withXml {
+              def dependencies = [:] // dependency:scope map
+              // putting all the implementation dependencies into the dependencies map
+              configurations.implementation.getAllDependencies().each { dep ->
+                dependencies.put(dep, "runtime")
+              }
+              configurations.releaseImplementation.getAllDependencies().each { dep ->
+                dependencies.put(dep, "runtime")
+              }
+              // replacing dependencies for api with compile scope
+              configurations.api.getAllDependencies().each { dep ->
+                dependencies.put(dep, "compile")
+              }
+
+              // writing <dependencies> section of pom.xml
+              final dependenciesNode = asNode().appendNode('dependencies')
+              dependencies.each { dep, scope ->
+                if (dep.group == null || dep.version == null || dep.name == null || dep.name == "unspecified") {
+                  return // ignore invalid dependencies
+                }
+
+                final dependencyNode = dependenciesNode.appendNode('dependency')
+                dependencyNode.appendNode('groupId', dep.group)
+                dependencyNode.appendNode('artifactId', dep.name)
+                dependencyNode.appendNode('version', dep.version)
+                dependencyNode.appendNode('scope', scope)
+                dep.artifacts.each { artifact ->
+                  if (artifact.classifier != null) {
+                    dependencyNode.appendNode('classifier', artifact.classifier)
+                  }
+                  if (artifact.extension != null) {
+                    dependencyNode.appendNode('type', artifact.extension)
+                  }
+                }
+              }
+            }
+          } else if (android.hasProperty('applicationVariants')) {
+            android.applicationVariants.all { variant ->
+              variant.outputs.all { output ->
+                println "output name: ${output.name}, file:${output.outputFile}"
+                if (variant.name != 'debug') {
+                  artifact source: output.outputFile, classifier: output.name
+                }
+              }
+            }
+          }
+        }
+
+      }
+
+      /**
+       * ############################## REPOSITORIES ##########################
+       */
+      repositories {
+        loadPublishPropsToExt(project)
+        for (Repository repo : project.extensions.getByName("publishRepos")) {
+          maven {
+            name = repo.name
+            url(rootProject.isRelease.toBoolean()) ? repo.releaseURL : repo.snapshotURL
+            credentials {
+              username repo.userName
+              password repo.password
+            }
+          }
+        }
+      }
+
+    }
+
+
+    /**
+     * ############################## TASK TO BUMP UP VERSION ##########################
+     */
+    task bumpVersionAndTag {
+      group GRADLE_TASK_GROUP_VERSIONING
+      description 'Tagging with a bumped version'
+      doLast {
+        Properties libraryProps = loadProps(project, "library")
+        Expando versionExpando = toVersionExpando(libraryProps)
+
+        libraryProps.setProperty("buildNumber", String.valueOf(versionExpando.incrementBuildNumber()))
+        saveProps(project, libraryProps, "library.properties")
+        def tag = "${project.name}-${versionExpando.versionName()}"
+        logger.quiet("Tag name: $tag")
+//        exec {
+//          workingDir project.rootDir
+//          commandLine "$project.rootDir/team-props/android_publish.sh", "$project.name", "origin"
+//        }
+        exec {
+          workingDir rootDir
+          commandLine 'git', 'tag', tag
+        }
+        exec {
+          workingDir rootDir
+          commandLine 'git', 'push', 'origin', tag
+        }
+      }
+    }
+  }
+}
+
+task bumpVersionAndTag {
+  group GRADLE_TASK_GROUP_VERSIONING
+  description 'Tagging all sub-projects with a bumped version'
+}
+subprojects {
+  Task subProjectTask = tasks.findByName("bumpVersionAndTag")
+  if (subProjectTask != null) {
+    bumpVersionAndTag.dependsOn subProjectTask
+  }
+}
+
+/******************* UTILITY METHODS ******************************/
+def loadLibraryPropsToExt(Project project) {
+//  File libraryPropsFile = file("${project.projectDir}/library.properties")
+//  Properties libraryProps = new Properties()
+//  if (!libraryPropsFile.exists()) {
+//    throw new GradleException("Unable to find library.properties file")
+//  }
+//  libraryProps.load(new FileReader(libraryPropsFile))
+  Properties libraryProps = loadProps(project, "library")
+  project.extensions.add("groupID", libraryProps.getProperty("groupID", "com.quickplay.nexgen"))
+  project.extensions.add("artifactID", libraryProps.getProperty("artifactID", "templatelib"))
+  project.extensions.add("majorVersion", Integer.parseInt(libraryProps.getProperty("majorVersion", "1")))
+  project.extensions.add("minorVersion", Integer.parseInt(libraryProps.getProperty("minorVersion", "0")))
+  project.extensions.add("patchVersion", Integer.parseInt(libraryProps.getProperty("patchVersion", "0")))
+  project.extensions.add("buildNumber", Integer.parseInt(libraryProps.getProperty("buildNumber", "0")))
+}
+
+def versionName(Project project) {
+  return "${project.majorVersion}.${project.minorVersion}.${project.patchVersion}.${project.buildNumber}"
+}
+
+def toVersionExpando(Properties libraryProps) {
+  def version = new Expando(
+    majorVersion: Integer.parseInt(libraryProps.getProperty("majorVersion", "1")),
+    minorVersion: Integer.parseInt(libraryProps.getProperty("minorVersion", "0")),
+    patchVersion: Integer.parseInt(libraryProps.getProperty("patchVersion", "0")),
+    buildNumber: Integer.parseInt(libraryProps.getProperty("buildNumber", "0"))
+  )
+  version.versionName =
+    { "$version.majorVersion.$version.minorVersion.$version.patchVersion.$version.buildNumber" }
+  version.incrementBuildNumber = {
+    version.buildNumber = version.buildNumber + 1
+  }
+  return version
+}
+
+def loadPublishPropsToExt(Project project) {
+//  File publishPropsFile = file("${project.projectDir}/publish.properties")
+//  Properties publishProps = new Properties()
+//  if (!publishPropsFile.exists()) {
+//    throw new GradleException("Unable to find publish.properties file")
+//  }
+//  publishProps.load(new FileReader(publishPropsFile))
+  Properties publishProps = loadProps(project, "publish")
+  List<Repository> repos = []
+  def repoNames = publishProps.getProperty("repositoryNames")?.split(";")
+  def snapshotURLS = publishProps.getProperty("snapshotURLs")?.split(";")
+  def releaseURLs = publishProps.getProperty("releaseURLs")?.split(";")
+  def credentials = publishProps.getProperty("credentials")?.split(";")
+  if (snapshotURLS?.length == repoNames?.length &&
+    releaseURLs?.length == repoNames?.length &&
+    credentials?.length == repoNames?.length) {
+    for (int index = 0; index < repoNames?.length; index++) {
+      def repoName = repoNames[index]
+      def snaphotURL = resolveAllVariables(project, snapshotURLS[index])
+      def releaseURL = resolveAllVariables(project, releaseURLs[index])
+      def credentialArr = credentials[index].split(",")
+      if (credentialArr.length < 2) {
+        credentialArr = ["", ""]
+      } else {
+        credentialArr[0] = resolveAllVariables(project, credentialArr[0])
+        credentialArr[1] = resolveAllVariables(project, credentialArr[1])
+      }
+      repos.add(new Repository.Builder().name(repoName).snapshotURL(snaphotURL).releaseURL(releaseURL)
+        .userName(credentialArr[0]).password(credentialArr[1])
+        .build())
+    }
+    project.extensions.add("publishRepos", repos)
+    println("mavenRepos= $repos")
+  } else {
+    throw new GradleException("Malformed properties file. Each repo should have equivalent entries in all publish " +
+      "properties")
+  }
+}
+
+def loadProps(Project project, String fileName) {
+  if (!fileName.endsWith(".properties")) {
+    fileName = fileName + ".properties"
+  }
+  File propsFile = file("${project.projectDir}/$fileName")
+//  Properties props = new Properties() {
+//    @Override
+//    synchronized Enumeration<Object> keys() {
+//      return Collections.enumeration(new LinkedHashSet<Object>(super.keySet()));
+//    }
+//  }
+  Properties props = new CustomProperties(new LinkedHashMap<String, String>())
+  if (!propsFile.exists()) {
+    throw new GradleException("Unable to find ${fileName} file")
+  }
+  props.load(new FileReader(propsFile))
+  return props
+}
+
+def saveProps(Project project, Properties props, String fileName) {
+
+  if (!fileName.endsWith(".properties")) {
+    fileName = fileName + ".properties"
+  }
+  File propsFile = file("${project.projectDir}/$fileName")
+  if (!propsFile.exists()) {
+    propsFile.createNewFile()
+  }
+  props.store(new FileWriter(propsFile), "Updated build Number")
+}
+
+
+def resolveAllVariables(Project project, String aString) {
+  return aString.replaceAll(/\$\{?(\w+)\}?/) {
+      ///\$\{?(\w+)\}?/
+    m, k ->
+      extractPropertyValue(project, k)
+  }
+}
+
+def extractPropertyValue(Project project, String name) {
+  String propName = name
+  if (propName.startsWith('$')) {
+    propName = propName.substring(1)
+  }
+  name = project.findProperty(propName)
+  if (name == null) {
+    name = project.rootProject.findProperty(propName)
+  }
+  if (name == null) {
+    println("$propName not found in project/rootProject")
+  }
+  return name
+}
+
+final class Repository {
+
+  static class Builder {
+    String name
+    String snapshotURL
+    String releaseURL
+    String userName
+    String password
+
+    Builder name(String name) {
+      this.name = name
+      return this
+    }
+
+    Builder snapshotURL(String name) {
+      this.snapshotURL = name
+      return this
+    }
+
+    Builder releaseURL(String name) {
+      this.releaseURL = name
+      return this
+    }
+
+    Builder userName(String name) {
+      this.userName = name
+      return this
+    }
+
+    Builder password(String name) {
+      this.password = name
+      return this
+    }
+
+    Repository build() {
+      return new Repository(name, snapshotURL, releaseURL, userName, password)
+    }
+  }
+  final String name
+  final String snapshotURL
+  final String releaseURL
+  final String userName
+  final String password
+
+  private Repository(final String name, final String snapshotURL, final String releaseURL, final String userName, final
+    String password) {
+    this.name = name
+    this.snapshotURL = snapshotURL
+    this.releaseURL = releaseURL
+    this.userName = userName
+    this.password = password
+  }
+
+  @Override
+  String toString() {
+    return "Repository{" +
+      "name='" + name + '\'' +
+      ", snapshotURL='" + snapshotURL + '\'' +
+      ", releaseURL='" + releaseURL + '\'' +
+      ", userName='" + userName + '\'' +
+      ", password='" + password + '\'' +
+      '}';
+  }
+}
+
+/**
+ * Custom {@link Properties} that delegates reading, writing, and enumerating properties to the passed
+ * {@link Map}
+ */
+final class CustomProperties extends Properties {
+
+  private final Map<String, String> targetProperties;
+
+  private CustomProperties(Map<String, String> targetProperties) {
+    this.targetProperties = targetProperties;
+  }
+
+  @Override
+  public Object get(Object key) {
+    return targetProperties.get(key);
+  }
+
+  @Override
+  public Object put(Object key, Object value) {
+    return targetProperties.put((String) key, (String) value);
+  }
+
+  @Override
+  public String getProperty(String key) {
+    return targetProperties.get(key);
+  }
+
+  @Override
+  public Enumeration<Object> keys() {
+    return new Vector<Object>(targetProperties.keySet()).elements();
+  }
+
+  @SuppressWarnings("NullableProblems")
+  @Override
+  public Set<Object> keySet() {
+    return new LinkedHashSet<Object>(targetProperties.keySet());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<Map.Entry<Object, Object>> entrySet() {
+    Set entrySet = targetProperties.entrySet();
+    return (Set<Map.Entry<Object, Object>>) entrySet;
+  }
+
+  @Override
+  public String toString() {
+    return targetProperties.toString()
+  }
+
+}

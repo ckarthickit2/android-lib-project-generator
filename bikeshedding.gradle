@@ -1,0 +1,72 @@
+// Jacoco Plugin Excludes pattern
+
+afterEvaluate {
+  exec {
+    workingDir project.rootDir
+    commandLine "$project.rootDir/team-props/bikeshedding.sh", "$project.rootDir"
+  }
+}
+
+final List<String> jacocoExcludes = [
+  '**/R.class',
+  '**/R2.class', // ButterKnife Gradle Plugin.
+  '**/R$*.class',
+  '**/R2$*.class', // ButterKnife Gradle Plugin.
+  '**/*$$*',
+  '**/*$ViewInjector*.*', // Older ButterKnife Versions.
+  '**/*$ViewBinder*.*', // Older ButterKnife Versions.
+  '**/*_ViewBinding*.*', // Newer ButterKnife Versions.
+  '**/BuildConfig.*',
+  '**/Manifest*.*',
+  '**/*$Lambda$*.*', // Jacoco can not handle several "$" in class name.
+  '**/*Dagger*.*', // Dagger auto-generated code.
+  '**/*MembersInjector*.*', // Dagger auto-generated code.
+  '**/*_Provide*Factory*.*', // Dagger auto-generated code.
+  '**/*_Factory*.*', // Dagger auto-generated code.
+  '**/*$JsonObjectMapper.*', // LoganSquare auto-generated code.
+  '**/*$inlined$*.*', // Kotlin specific, Jacoco can not handle several "$" in class name.
+  '**/*$Icepick.*', // Icepick auto-generated code.
+  '**/*$StateSaver.*', // android-state auto-generated code.
+  '**/*AutoValue_*.*', // AutoValue auto-generated code.
+  "**/*JsonAdapter.*", // Retrofit Json Adapters
+]
+
+apply plugin: "com.vanniktech.android.junit.jacoco"
+junitJacoco {
+  jacocoVersion = '0.8.2' // type String
+  ignoreProjects = [] // type String array
+  excludes = jacocoExcludes// type String List
+  includeNoLocationClasses = false // type boolean
+  includeInstrumentationCoverageInMergedReport = false // type boolean
+}
+
+subprojects {
+
+  //apply only for library projects
+  project.plugins.withId('com.android.library') {
+    apply plugin: 'io.gitlab.arturbosch.detekt' //Static Analysis
+    apply plugin: "com.diffplug.gradle.spotless" //Linting and Formatting
+
+    detekt {
+      config = files("$rootDir/team-props/tools/detekt/default-detekt-config.yml")
+      filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
+      //Optional baseline, uncomment & run gradle command detektBaseline to exclude existing issues
+      //baseline = file("detekt-baseline.xml")
+    }
+
+    spotless {
+      java {
+        target '**/*.java'
+        encoding 'Cp1252' // java will have Cp1252
+      }
+      kotlin {
+        target '**/*.kt'
+        ktlint('0.32.0').userData(['indent_size': "2", "continuation_indent_size": "2"])
+        trimTrailingWhitespace()
+      }
+      cpp {
+        target '**/*.cpp', '**/*.c'
+      }
+    }
+  }
+}
