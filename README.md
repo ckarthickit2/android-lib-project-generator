@@ -68,7 +68,11 @@ This __MUST__ be a `submodule` of the created library project and should be one 
 It contains the following:
 
 - `classpath of all the gradle plugins` used commonly across projects.
-- `configuration for all the bike-shedding tools` used.
+- `configuration for all the bike-shedding tools`(&#128736;) used.
+
+## &#128747; JenkinsFile
+
+&#128679;&#127959;
 
 ---
 [unicode_emoji_list]: http://www.unicode.org/emoji/charts/full-emoji-list.html
