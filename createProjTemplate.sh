@@ -196,7 +196,7 @@ touch "$WORKING_DIR/sample/build.gradle"
 #cat "" > "$WORKING_DIR/sample/build.gradle"
 #replace `applicationId "com.quickplay.template.app"` with groupid.sample
 generate_file_from_template_with_multi_patterns \
-"s/com.quickplay.template.app/${GROUP_NAME}.sample/g;s/templatelib/${LIB_PROJ_NAME}/g" \
+"s/com.quickplay.template.app/${GROUP_NAME}.${LIB_PACKAGE_NAME}.sample/g;s/templatelib/${LIB_PROJ_NAME}/g" \
 "$PROJECT_TEMPLATE_DIR/app/build.gradle" "$WORKING_DIR/sample/build.gradle"
 #sed -e "s/com.quickplay.template.app/${GROUP_NAME}.sample/g" "$PROJECT_TEMPLATE_DIR/app/build.gradle" >\
 #"$WORKING_DIR/sample/build.gradle"
