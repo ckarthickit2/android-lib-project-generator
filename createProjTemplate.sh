@@ -7,6 +7,7 @@ PROG_BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_TEMPLATE_DIR="$PROG_BASEDIR/project-template"
 WORKING_DIR=`pwd`
 PROJECT_PREFIX="nexgen-"
+TEAM_PROPS_REMOTE_URL="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && git config --get remote.origin.url )"
 
 # use $LINENO at call-site while passing the error-msg
 error_exit()
@@ -25,14 +26,31 @@ fi
 
 }
 
-validate_args()
+validate_num_args()
 {
 if [[ $# -lt 2 ]];then
-error_exit "\nUsage: $PROG_NAME -g|--group <group_name> -l|--lib <lib_name>"
+error_exit "\nUsage: $PROG_NAME -g|--group <valid_package_name> -l|--lib <lib_name>"
 fi
 }
 
-parse_args()
+validate_group_name()
+{
+  # Regex inspired from https://github.com/checkstyle/checkstyle/blob/master/src/main/java/com/puppycrawl/tools/checkstyle/checks/naming/PackageNameCheck.java
+  if [[ ! "$GROUP_NAME" =~ ^[a-z]+(\.[a-z][a-z0-9]*)+$ ]]; then
+  error_exit "\nUsage: $PROG_NAME -g|--group <valid_package_name> -l|--lib <lib_name>\
+  \nPlease pass a valid java package name"
+  fi
+}
+
+validate_library_name()
+{
+  if [[ ! "$LIB_NAME" =~ ^[a-z]+(-[a-z][a-z0-9]*)*$ ]]; then
+  error_exit "\nUsage: $PROG_NAME -g|--group <valid_package_name> -l|--lib <lib_name>\
+  \nPlease pass a valid library name (they should be valid alphanumeric, optionally hyphenated strings)"
+  fi
+}
+
+parse_and_validate_args()
 {
 POSITIONAL=()
 while [[ $# -gt 0 ]]
@@ -74,7 +92,8 @@ echo "LIB_PROJ_NAME = <${LIB_PROJ_NAME}>"
 if [[ -z "${GROUP_NAME}" ]] || [[ -z "${LIB_NAME}" ]] || [[ -z "${GROUP_PATH}" ]] || [[ -z "${LIB_PROJ_NAME}" ]];then
 error_exit "$LINENO: Invalid Arguments passed"
 fi
-#TODO: Validate Group Name
+validate_group_name
+validate_library_name
 }
 
 setup_gradle()
@@ -204,8 +223,16 @@ setup_git_scm()
 #Copy .gitignore from team-props/project-template ?
 #Add team-props repo as submodule of the newly created repo
 #Stage all the changes ??
+TEAM_PROPS_DIR_NAME=$(basename $PROG_BASEDIR)
+if [[ $TEAM_PROPS_DIR_NAME != "team-props" ]]; then
+echo "moving $TEAM_PROPS_DIR_NAME to team-props"
+mv $TEAM_PROPS_DIR_NAME "$WORKING_DIR/team-props"
+TEAM_PROPS_DIR_NAME="team-props"
+fi
 git init
-echo ""
+git submodule add $TEAM_PROPS_REMOTE_URL "team-props"
+git add --all
+#echo "TEAM_PROPS_REMOTE_URL = $TEAM_PROPS_REMOTE_URL, prog_dir= $(basename $PROG_BASEDIR)"
 }
 
 setup_project()
@@ -220,8 +247,8 @@ setup_git_scm
 
 
 #main() {
-validate_args $@
-parse_args $@
+validate_num_args $@
+parse_and_validate_args $@
 setup_project
 #}
 
