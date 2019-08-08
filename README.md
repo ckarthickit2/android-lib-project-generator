@@ -74,5 +74,11 @@ It contains the following:
 
 &#128679;&#127959;
 
+## &#128679; Technical Debts
+
+- [ ] Generate `lib-sources` artifact and publish to Maven.
+- [ ] Stream Edit Jenkins Pipeline by taking `remote-url` as input.
+- [ ] Generate `lib-documentation` artifact and publish to Maven.
+
 ---
 [unicode_emoji_list]: http://www.unicode.org/emoji/charts/full-emoji-list.html
