@@ -81,10 +81,12 @@ set -- "${POSITIONAL[@]}" # restore positional parameters
 
 GROUP_PATH=`echo ${GROUP_NAME} | sed "s/\\./\\//g"`
 LIB_PROJ_NAME="${LIB_NAME}-lib"
+LIB_PACKAGE_NAME="$( echo ${LIB_NAME} | sed s/-/_/g )"
 echo "GROUP NAME = <${GROUP_NAME}>"
 echo "LIB NAME = <${LIB_NAME}>"
 echo "GROUP_PATH = <${GROUP_PATH}>"
 echo "LIB_PROJ_NAME = <${LIB_PROJ_NAME}>"
+echo "LIB_PACKAGE_NAME = <${LIB_PACKAGE_NAME}>"
 
 #if [[ ! -n "${LIB_NAME}" ]];then
 #error_exit "$LINENO: Invalid Library name passed (${LIB_NAME})"
@@ -105,7 +107,7 @@ WORKING_DIR=`pwd`
 echo "Changed working directory to: $WORKING_DIR"
 fi
 
-if [[ `command -v gradle 2>/dev/null` ]];then
+if [[ `command -v gradlea 2>/dev/null` ]];then
 echo "gradle found"
 gradle init --type basic --dsl groovy --project-name "$PROJECT_PREFIX$LIB_NAME"
 validate_last_command_result "$LINENO Gradle init failure"
@@ -198,7 +200,7 @@ generate_file_from_template_with_multi_patterns \
 "$PROJECT_TEMPLATE_DIR/app/build.gradle" "$WORKING_DIR/sample/build.gradle"
 #sed -e "s/com.quickplay.template.app/${GROUP_NAME}.sample/g" "$PROJECT_TEMPLATE_DIR/app/build.gradle" >\
 #"$WORKING_DIR/sample/build.gradle"
-generate_file_from_template "com.quickplay.template.app" "${GROUP_NAME}.sample" \
+generate_file_from_template "com.quickplay.template.app" "${GROUP_NAME}.${LIB_PACKAGE_NAME}.sample" \
 "$PROJECT_TEMPLATE_DIR/app/AndroidManifest.xml" "$WORKING_DIR/sample/src/main/AndroidManifest.xml"
 }
 
@@ -206,7 +208,7 @@ setup_library_project()
 {
 create_folder_tree_if_not_exists "$WORKING_DIR/lib"
 create_android_folder_tree_with_base "$WORKING_DIR/lib"
-generate_file_from_template "com.quickplay.template.lib" "${GROUP_NAME}.${LIB_NAME}" \
+generate_file_from_template "com.quickplay.template.lib" "${GROUP_NAME}.${LIB_PACKAGE_NAME}" \
 "$PROJECT_TEMPLATE_DIR/lib/AndroidManifest.xml" "$WORKING_DIR/lib/src/main/AndroidManifest.xml"
 cp "$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"
 generate_file_from_template_with_multi_patterns \
