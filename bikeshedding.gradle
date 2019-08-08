@@ -40,10 +40,10 @@ junitJacoco {
   includeInstrumentationCoverageInMergedReport = false // type boolean
 }
 
-subprojects {
+allprojects {
 
   //apply only for library projects
-  project.plugins.withId('com.android.library') {
+  //project.plugins.withId('com.android.library') {
     apply plugin: 'io.gitlab.arturbosch.detekt' //Static Analysis
     apply plugin: "com.diffplug.gradle.spotless" //Linting and Formatting
 
@@ -68,5 +68,5 @@ subprojects {
         target '**/*.cpp', '**/*.c'
       }
     }
-  }
+  //}
 }
