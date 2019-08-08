@@ -91,7 +91,7 @@ subprojects {
         for (Repository repo : project.extensions.getByName("publishRepos")) {
           maven {
             name = repo.name
-            url(rootProject.isRelease.toBoolean()) ? repo.releaseURL : repo.snapshotURL
+            url "${rootProject.isRelease.toBoolean() ? repo.releaseURL : repo.snapshotURL}"
             credentials {
               username repo.userName
               password repo.password
