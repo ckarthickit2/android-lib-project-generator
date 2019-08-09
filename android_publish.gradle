@@ -20,10 +20,10 @@ subprojects {
 
         "${project.name}Aar"(MavenPublication) {
           //There are no components defined for android library
-          groupId project.group
-          version project.version
-          artifactId project.name
-          println("Publishable Artifact: <$project.group:$project.name:$project.version>")
+          groupId = project.group
+          version = "${ (rootProject.isRelease.toBoolean()) ? project.version : project.version+"-SNAPSHOT"}"
+          artifactId = project.name
+          println("Publishable Artifact: <$groupId:$artifactId:$version>")
 
           if (android.hasProperty('libraryVariants')) {
             android.libraryVariants.all { variant ->
@@ -117,10 +117,6 @@ subprojects {
         saveProps(project, libraryProps, "library.properties")
         def tag = "${project.name}-${versionExpando.versionName()}"
         logger.quiet("Tag name: $tag")
-//        exec {
-//          workingDir project.rootDir
-//          commandLine "$project.rootDir/team-props/android_publish.sh", "$project.name", "origin"
-//        }
         exec {
           workingDir rootDir
           commandLine 'git', 'tag', tag

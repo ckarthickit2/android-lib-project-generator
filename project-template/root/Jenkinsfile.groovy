@@ -55,7 +55,7 @@ pipeline {
     stage('Bump Version') {
       when {
           //branch 'master' //Works only for multibranch pipeline
-          environment name: '$IS_RELEASE', value: 'true'
+          environment name: 'IS_RELEASE', value: 'true'
       }
       steps {
           sshagent(['svc-qpjenkins-egbbk']) {

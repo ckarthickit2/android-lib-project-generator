@@ -127,7 +127,7 @@ cp "$PROJECT_TEMPLATE_DIR/root/.gitignore" "$WORKING_DIR"
 cp "$PROJECT_TEMPLATE_DIR/root/build.gradle" "$WORKING_DIR"
 setup_settings_gradle_script
 cat "$PROJECT_TEMPLATE_DIR/root/gradle.properties" >> "$WORKING_DIR/gradle.properties"
-cp "$PROJECT_TEMPLATE_DIR/root/JenkinsFile" "$WORKING_DIR"
+cp "$PROJECT_TEMPLATE_DIR/root/Jenkinsfile.groovy" "$WORKING_DIR"
 }
 
 setup_settings_gradle_script()
