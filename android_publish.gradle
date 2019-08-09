@@ -21,7 +21,7 @@ subprojects {
         "${project.name}Aar"(MavenPublication) {
           //There are no components defined for android library
           groupId = project.group
-          version = "${ (rootProject.isRelease.toBoolean()) ? project.version : project.version+"-SNAPSHOT"}"
+          version = "${(rootProject.isRelease.toBoolean()) ? project.version : project.version + "-SNAPSHOT"}"
           artifactId = project.name
           println("Publishable Artifact: <$groupId:$artifactId:$version>")
 
@@ -92,9 +92,11 @@ subprojects {
           maven {
             name = repo.name
             url "${rootProject.isRelease.toBoolean() ? repo.releaseURL : repo.snapshotURL}"
-            credentials {
-              username repo.userName
-              password repo.password
+            if (!repo.userName.isEmpty()) {
+              credentials {
+                username repo.userName
+                password repo.password
+              }
             }
           }
         }
