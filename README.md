@@ -34,7 +34,7 @@ Once the above steps are successfull, a new project with a template folder struc
     ├── build.gradle            # Root Project's `build.gradle` that applies tools from `team-props`.
     ├── settings.gradle         # Includes `lib` and `sample` sub-projects for compilation. 
     ├── gradle.properties       # Contains default properties for the project.
-    ├── JenkinsFile             # Configures Jenkins Pipeline
+    ├── Jenkinsfile.groovy      # Configures Jenkins Pipeline
     └── README.md               # Created to update context about Project
 
 ## &#128193; `lib` sub-project
