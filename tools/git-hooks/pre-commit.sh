@@ -19,11 +19,17 @@ update_staged_files() {
 staged_kotlin_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.kts|\.kt/ { print $2}'`
 staged_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" { print $2}'`
 staged_test_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~  /\/test\// && $2 ~ /\.kt|\.java/ { print $2}'`
+staged_source_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.kts|\.kt|\.java|\.xml/ { print $2}'`
 }
 
 #main() {
 
 update_staged_files
+
+if [[ -z "$staged_source_files" ]];then
+echo "no source files.. skipping pre-commit hooks"
+exit 0
+fi
 
 # Do formatting
 echo "running spotless apply and check..."

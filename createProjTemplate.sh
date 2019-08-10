@@ -218,6 +218,7 @@ create_android_folder_tree_with_base "$WORKING_DIR/sample"
 cp -R "$PROJECT_TEMPLATE_DIR/app/res/" "$WORKING_DIR/sample/src/main/res"
 generate_file_from_template "templateapp" "${LIB_PROJ_NAME}-demo" \
 "$PROJECT_TEMPLATE_DIR/app/res/values/strings.xml" "$WORKING_DIR/sample/src/main/res/values/strings.xml"
+validate_last_command_result "$LINENO: app/res folder handling failed"
 
 #Handle app/Launcher Activity 
 generate_file_from_template_with_multi_patterns \
@@ -227,11 +228,13 @@ s/templateapp/${LIB_PACKAGE_NAME}.sample/g;\
 s/TemplateLibraryInfo/${LIB_CLASS_NAME}LibraryInfo/g\
 " \
 "$PROJECT_TEMPLATE_DIR/app/src/Launcher.kt" "$WORKING_DIR/sample/src/main/java/${GROUP_PATH}/Launcher.kt"
+validate_last_command_result "$LINENO: app/Launcher handling failed"
 
 #Handle app/AndroidManifest.xml
 generate_file_from_template_with_multi_patterns \
 "s/templatepackage/${GROUP_NAME}/g;s/templateapp/${LIB_PACKAGE_NAME}.sample/g" \
 "$PROJECT_TEMPLATE_DIR/app/AndroidManifest.xml" "$WORKING_DIR/sample/src/main/AndroidManifest.xml"
+validate_last_command_result "$LINENO: app/AndroidManifest handling failed"
 
 #Handle app/build.gradle
 #copy app/build.gradle into APP_BUILD_GRADLE_SCRIPT
@@ -244,6 +247,8 @@ s/templateapp/${LIB_PACKAGE_NAME}.sample/g;\
 s/templatelib/${LIB_PROJ_NAME}/g\
 " \
 "$PROJECT_TEMPLATE_DIR/app/build.gradle" "$WORKING_DIR/sample/build.gradle"
+validate_last_command_result "$LINENO: app/build.gradle handling failed"
+
 #sed -e "s/templatepackage/${GROUP_NAME}.sample/g" "$PROJECT_TEMPLATE_DIR/app/build.gradle" >\
 #"$WORKING_DIR/sample/build.gradle"
 }
@@ -254,22 +259,33 @@ create_folder_tree_if_not_exists "$WORKING_DIR/lib"
 create_android_folder_tree_with_base "$WORKING_DIR/lib"
 
 #Handle lib/TemplateLibraryInfo.kt
-generate_file_from_template "Template" "${LIB_CLASS_NAME}" \
+generate_file_from_template_with_multi_patterns \
+"\
+s/Template/${LIB_CLASS_NAME}/g;\
+s/templatepackage/${GROUP_NAME}/g\
+" \
 "$PROJECT_TEMPLATE_DIR/lib/src/TemplateLibraryInfo.kt" \
 "$WORKING_DIR/lib/src/main/java/${GROUP_PATH}/${LIB_CLASS_NAME}LibraryInfo.kt"
+validate_last_command_result "$LINENO: lib/TemplateLibraryInfo handling failed"
 
 #Handle lib/AndroidManifest.xml
 generate_file_from_template_with_multi_patterns \
 "s/templatepackage/${GROUP_NAME}/g;s/templatelib/${LIB_PACKAGE_NAME}/g" \
 "$PROJECT_TEMPLATE_DIR/lib/AndroidManifest.xml" "$WORKING_DIR/lib/src/main/AndroidManifest.xml"
+validate_last_command_result "$LINENO: lib/AndroidManifest handling failed"
 
 #Handle lib/build.gradle
 cp "$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"
 
 #Handle lib/library.properties
 generate_file_from_template_with_multi_patterns \
-"s/templatepackage/${GROUP_NAME}/g;s/templatelib/${LIB_NAME}/g" \
+"\
+s|templatepackage|${GROUP_NAME}|g;\
+s|templatelib|${LIB_NAME}|g;\
+s|libinfotemplatefile|src/main/java/${GROUP_PATH}/${LIB_CLASS_NAME}LibraryInfo.kt|g;\
+" \
 "$PROJECT_TEMPLATE_DIR/lib/library.properties" "$WORKING_DIR/lib/library.properties"
+validate_last_command_result "$LINENO: lib/library.properties handling failed"
 
 #Handle lib/publish.properties
 cp "$PROJECT_TEMPLATE_DIR/lib/publish.properties" "$WORKING_DIR/lib/publish.properties"

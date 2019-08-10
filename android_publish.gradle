@@ -1,3 +1,12 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
+class LibraryInfoPatterns {
+  static final Pattern majorVersionPattern = Pattern.compile("(const\\s+val\\s+MAJOR_VERSION\\s*:\\s*Int\\s*=\\s*(\\d+))")
+  static final Pattern minorVersionPattern = Pattern.compile("(const\\s+val\\s+MINOR_VERSION\\s*:\\s*Int\\s*=\\s*(\\d+))")
+  static final Pattern patchVersionPattern = Pattern.compile("(const\\s+val\\s+PATCH_VERSION\\s*:\\s*Int\\s*=\\s*(\\d+))")
+}
+
 final GRADLE_TASK_GROUP_VERSIONING = 'versioning'
 
 subprojects {
@@ -108,15 +117,15 @@ subprojects {
     /**
      * ############################## TASK TO BUMP UP VERSION ##########################
      */
-    task bumpVersionAndTag {
+    task tagAndBumpVersion {
       group GRADLE_TASK_GROUP_VERSIONING
       description 'Tagging with a bumped version'
       doLast {
         Properties libraryProps = loadProps(project, "library")
-        Expando versionExpando = toVersionExpando(libraryProps)
-
-        libraryProps.setProperty("buildNumber", String.valueOf(versionExpando.incrementBuildNumber()))
-        saveProps(project, libraryProps, "library.properties")
+        def fileName = libraryProps.getProperty("libraryInfoPath", "library.properties")
+        /****************READ VERSION**********************/
+        File libInfoFile = project.file(fileName)
+        Expando versionExpando = versionExpandoFromLibInfo(libInfoFile)
         def tag = "${project.name}-${versionExpando.versionName()}"
         logger.quiet("Tag name: $tag")
         exec {
@@ -127,33 +136,46 @@ subprojects {
           workingDir rootDir
           commandLine 'git', 'push', 'origin', tag
         }
+        /************ BUMP & COMMIT VERSION**********************/
+        versionExpando.incrementPatchVersion()
+        tag = "${project.name}-${versionExpando.versionName()}"
+        def branchName = extractPropertyValue(project, "branchName", "master")
+        logger.quiet("Next version: $tag, commit to : $branchName")
+        commitVersionExpandoToLibraryInfo(versionExpando, libInfoFile)
+        exec {
+          workingDir rootDir
+          commandLine 'git', 'add', libInfoFile.absolutePath
+        }
+        exec {
+          workingDir rootDir
+          commandLine 'git', 'commit', '-m' , '[ci-version-upgrade] prepare for next development iteration '
+        }
+        exec {
+          workingDir rootDir
+          commandLine 'git', 'push', 'origin' , "HEAD:$branchName"
+        }
       }
     }
   }
 }
 
-task bumpVersionAndTag {
+task tagAndBumpVersion {
   group GRADLE_TASK_GROUP_VERSIONING
   description 'Tagging all sub-projects with a bumped version'
 }
 subprojects {
-  Task subProjectTask = tasks.findByName("bumpVersionAndTag")
+  Task subProjectTask = tasks.findByName("tagAndBumpVersion")
   if (subProjectTask != null) {
-    bumpVersionAndTag.dependsOn subProjectTask
+    tagAndBumpVersion.dependsOn subProjectTask
   }
 }
 
 /******************* UTILITY METHODS ******************************/
 def loadLibraryPropsToExt(Project project) {
-//  File libraryPropsFile = file("${project.projectDir}/library.properties")
-//  Properties libraryProps = new Properties()
-//  if (!libraryPropsFile.exists()) {
-//    throw new GradleException("Unable to find library.properties file")
-//  }
-//  libraryProps.load(new FileReader(libraryPropsFile))
   Properties libraryProps = loadProps(project, "library")
   project.extensions.add("groupID", libraryProps.getProperty("groupID", "com.quickplay.nexgen"))
   project.extensions.add("artifactID", libraryProps.getProperty("artifactID", "templatelib"))
+  project.extensions.add("libraryInfoPath", libraryProps.getProperty("libraryInfoPath", ""))
   project.extensions.add("majorVersion", Integer.parseInt(libraryProps.getProperty("majorVersion", "1")))
   project.extensions.add("minorVersion", Integer.parseInt(libraryProps.getProperty("minorVersion", "0")))
   project.extensions.add("patchVersion", Integer.parseInt(libraryProps.getProperty("patchVersion", "0")))
@@ -164,19 +186,60 @@ def versionName(Project project) {
   return "${project.majorVersion}.${project.minorVersion}.${project.patchVersion}.${project.buildNumber}"
 }
 
-def toVersionExpando(Properties libraryProps) {
-  def version = new Expando(
-    majorVersion: Integer.parseInt(libraryProps.getProperty("majorVersion", "1")),
-    minorVersion: Integer.parseInt(libraryProps.getProperty("minorVersion", "0")),
-    patchVersion: Integer.parseInt(libraryProps.getProperty("patchVersion", "0")),
-    buildNumber: Integer.parseInt(libraryProps.getProperty("buildNumber", "0"))
-  )
-  version.versionName =
-    { "$version.majorVersion.$version.minorVersion.$version.patchVersion.$version.buildNumber" }
-  version.incrementBuildNumber = {
-    version.buildNumber = version.buildNumber + 1
+def versionExpandoFromLibInfo(File libInfoFile) {
+  def linInfoScanner = new Scanner(libInfoFile)
+  try {
+    Matcher matcher
+    String majorVersionPropStr = linInfoScanner.findWithinHorizon(LibraryInfoPatterns.majorVersionPattern, 0)
+    matcher = LibraryInfoPatterns.majorVersionPattern.matcher(majorVersionPropStr)
+    String majorVersion = (matcher.matches()) ? matcher.group(2) : 0
+
+    String minorVersionPropStr = linInfoScanner.findWithinHorizon(LibraryInfoPatterns.minorVersionPattern, 0)
+    matcher = LibraryInfoPatterns.minorVersionPattern.matcher(minorVersionPropStr)
+    String minorVersion = (matcher.matches()) ? matcher.group(2) : 0
+
+    String patchVersionPropStr = linInfoScanner.findWithinHorizon(LibraryInfoPatterns.patchVersionPattern, 0)
+    matcher = LibraryInfoPatterns.patchVersionPattern.matcher(patchVersionPropStr)
+    String patchVersion = (matcher.matches()) ? matcher.group(2) : 0
+    def version = new Expando(
+      majorVersion: Integer.parseInt(majorVersion),
+      minorVersion: Integer.parseInt(minorVersion),
+      patchVersion: Integer.parseInt(patchVersion),
+      majorVersionPropStr: majorVersionPropStr,
+      minorVersionPropStr: minorVersionPropStr,
+      patchVersionPropStr: patchVersionPropStr,
+    )
+    version.versionName =
+      { "$version.majorVersion.$version.minorVersion.$version.patchVersion" }
+    version.incrementPatchVersion = {
+      Integer oldPatchVersion = version.patchVersion
+      version.patchVersion = oldPatchVersion + 1
+      version.incrementPatchVersionPropStr = version.patchVersionPropStr.replaceAll(
+        oldPatchVersion.toString(), String.valueOf(version.patchVersion))
+    }
+    return version
+
+  } catch (Exception e) {
+    e.printStackTrace()
+  } finally {
+    if (linInfoScanner != null) {
+      linInfoScanner.close()
+    }
   }
-  return version
+
+  return null
+}
+
+final commitVersionExpandoToLibraryInfo(Expando versionExpando, File libInfoFile) {
+  String majorVersionPropStr = versionExpando.majorVersionPropStr
+  String minorVersionPropStr = versionExpando.minorVersionPropStr
+  String patchVersionPropStr = versionExpando.patchVersionPropStr
+  String incrementPatchVersionPropStr = versionExpando.incrementPatchVersionPropStr
+  logger.quiet("$majorVersionPropStr\n$minorVersionPropStr\n$patchVersionPropStr\n$incrementPatchVersionPropStr")
+  File swapFile = file(libInfoFile.absolutePath + ".swp")
+  String libInfoText = libInfoFile.text
+  swapFile.write(libInfoText.replaceAll(patchVersionPropStr, incrementPatchVersionPropStr))
+  swapFile.renameTo(libInfoFile)
 }
 
 def loadPublishPropsToExt(Project project) {
@@ -229,7 +292,7 @@ def loadProps(Project project, String fileName) {
 //      return Collections.enumeration(new LinkedHashSet<Object>(super.keySet()));
 //    }
 //  }
-  Properties props = new CustomProperties(new LinkedHashMap<String, String>())
+  Properties props = new Properties()//new CustomProperties(new LinkedHashMap<String, String>())
   if (!propsFile.exists()) {
     throw new GradleException("Unable to find ${fileName} file")
   }
@@ -258,7 +321,7 @@ def resolveAllVariables(Project project, String aString) {
   }
 }
 
-def extractPropertyValue(Project project, String name) {
+def extractPropertyValue(Project project, String name, String defaultValue="") {
   String propName = name
   if (propName.startsWith('$')) {
     propName = propName.substring(1)
