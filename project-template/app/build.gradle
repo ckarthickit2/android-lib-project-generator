@@ -6,7 +6,7 @@ android {
   compileSdkVersion versions.androidCompile
   buildToolsVersion versions.androidBuildTools
   defaultConfig {
-    applicationId "com.quickplay.template.app"
+    applicationId "templatepackage.templateapp"
     minSdkVersion versions.androidMinSDK
     targetSdkVersion versions.androidTargetSDK
     versionCode 1
@@ -21,12 +21,13 @@ android {
 }
 
 dependencies {
-  project(':templatelib')
+  implementation project(path: ':templatelib')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
-  implementation "${deps.kotlin.stdLib.jdk7}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
+  implementation "${deps.kotlin.stdLib.jdk8}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
   implementation 'androidx.appcompat:appcompat:1.0.2'
   implementation 'androidx.core:core-ktx:1.0.2'
   testImplementation 'junit:junit:4.12'
   androidTestImplementation 'androidx.test:runner:1.2.0'
   androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
 }
