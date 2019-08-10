@@ -1,3 +1,5 @@
 <resources>
-  <string name="app_name">template</string>
+  <string name="app_name">templateapp</string>
+  <string name="welcome_message">Library Version: (%1$s).</string>
+
 </resources>
