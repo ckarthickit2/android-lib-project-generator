@@ -256,7 +256,7 @@ create_android_folder_tree_with_base "$WORKING_DIR/lib"
 #Handle lib/TemplateLibraryInfo.kt
 generate_file_from_template "Template" "${LIB_CLASS_NAME}" \
 "$PROJECT_TEMPLATE_DIR/lib/src/TemplateLibraryInfo.kt" \
-"$WORKING_DIR/lib/src/main/java/${GROUP_PATH}/TemplateLibraryInfo.kt"
+"$WORKING_DIR/lib/src/main/java/${GROUP_PATH}/${LIB_CLASS_NAME}LibraryInfo.kt"
 
 #Handle lib/AndroidManifest.xml
 generate_file_from_template_with_multi_patterns \
