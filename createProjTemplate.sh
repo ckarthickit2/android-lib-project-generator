@@ -50,6 +50,20 @@ validate_library_name()
   fi
 }
 
+# $1 = hyphenated  string; $2 = result variable
+hyphenated_string_to_camel_case() {
+	local __LEN=${#1}
+	local __TEMP=""
+	local  __RESULT=$2
+	#echo $((${#1} -1 ))
+	for i in $(echo $1 | tr "-" "\n")
+	do
+      __TEMP+="$(echo ${i:0:1} | awk '{ print toupper($0); }')"
+      __TEMP+="${i:1:$((__LEN - 1))}"
+	done
+	eval $__RESULT="'$__TEMP'"
+}
+
 parse_and_validate_args()
 {
 POSITIONAL=()
@@ -89,8 +103,8 @@ LIB_PACKAGE_NAME="$( echo ${LIB_NAME} | sed s/-/_/g )"
 #by
 # \U\2 uppercasing second group
 # g globally.
-LIB_CLASS_NAME="$( echo ${LIB_NAME} | sed -r 's/(^|_)([a-z])/\U\2/g')"
-
+#LIB_CLASS_NAME="$( echo ${LIB_NAME} | sed -r 's/(^|-)([a-z])/\U\2/g')"
+hyphenated_string_to_camel_case ${LIB_NAME} LIB_CLASS_NAME
 echo "GROUP NAME = <${GROUP_NAME}>"
 echo "LIB NAME = <${LIB_NAME}>"
 echo "GROUP_PATH = <${GROUP_PATH}>"
