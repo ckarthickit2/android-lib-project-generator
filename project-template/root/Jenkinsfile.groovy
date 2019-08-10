@@ -61,7 +61,7 @@ pipeline {
       }
       steps {
         sshagent(['svc-qpjenkins-egbbk']) {
-          sh "./gradlew bumpVersionAndTag -PisRelease=$IS_RELEASE"
+          sh "./gradlew tagAndBumpVersion -PisRelease=$IS_RELEASE -PbranchName=$BRANCH_NAME"
         }
       }
     }

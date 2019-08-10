@@ -1,7 +1,6 @@
-//@file:JvmName("TemplateLibraryInfo")
+// @file:JvmName("TemplateLibraryInfo")
 
-package com.quickplay.nexgen
-
+package templatepackage
 
 object TemplateLibraryInfo {
 
@@ -43,4 +42,3 @@ object TemplateLibraryInfo {
   @SuppressWarnings("unused")
   const val VERSION_INT: Int = (MAJOR_VERSION * 1000 * 1000) + (MINOR_VERSION * 1000) + PATCH_VERSION
 }
-

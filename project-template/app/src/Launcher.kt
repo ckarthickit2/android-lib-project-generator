@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import templatepackage.templateapp.R
+import templatepackage.TemplateLibraryInfo
 
 class Launcher : AppCompatActivity() {
 
@@ -17,7 +18,6 @@ class Launcher : AppCompatActivity() {
 
   private fun initViews() {
     label = findViewById(R.id.label)
-
   }
 
   private fun setupViews() {
