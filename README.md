@@ -103,11 +103,7 @@ A `property file` that contains the details about the maven repositories to whic
 3. `releaseURLs` - List of Release URLs with positions corresponding to the repositoryNames specified above
 4. `credentials` - List of Credentials for Maven Repository with positions corresponding to the repositoryNames specified above. If no crendentials are needed, __a place holder (null;)__ MUST be used.
 
-<<<<<<< HEAD
 ## &#128193; `toolset` submodule(&#128279;)
-=======
-## &#128193; `team-props` submodule(&#128279;)
->>>>>>> 065e78466ded44eefef3240190a6591b00b1f283
 
 This __MUST__ be a `submodule` of the created library project and should be one of the top-level directories of the project.
 It contains the following:
