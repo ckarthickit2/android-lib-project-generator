@@ -8,28 +8,28 @@
 ## &#9875; Template Project Generation
 
 1. Create a __new__ folder for the `Android Library Project`, that is being setup.
-2. Clone the team-props repository __inside the newly created folder.__
+2. Clone the toolset repository __inside the newly created folder.__
 
     ```bash
-      git clone ssh://git@egbitbucket.dtvops.net:7999/b2bclientdev/nexgen-android-team-props.git ./team-props
+      git clone ssh://git@domain:port/repo_path.git ./toolset
     ```
 
-3. Get into the `team-props` folder and execute the `./createProjTemplate.sh` script to setup the basic template project
+3. Get into the `toolset` folder and execute the `./createProjTemplate.sh` script to setup the basic template project
     - The script takes the following __mandatory parameters__
       1. `Group Name` (should be a __valid JAVA Package identifier__)
       2. `Library/Artifact Name` (should be a __valid alphanumeric value that can optionally be hyphenated__)
 
     ```bash
-      ./createProjTemplate.sh -g com.quickplay.nexgen -l foundation
+      ./createProjTemplate.sh -g com.example.sample -l foundation
     ```
 
-    Once the above steps are successfull, a new project with a template folder structure will be created and `team-props` will be added as submodule of the base project.
+    Once the above steps are successfull, a new project with a template folder structure will be created and `toolset` will be added as submodule of the base project.
 4. Open the `Jenkinsfile.groovy` pipeline file and update the appropriate git remote for the created repository.
 
     ```groovy
       checkout([
       //....
-      url   : 'ssh://git@egbitbucket.dtvops.net:7999/b2bclientdev/nexgen-android-template-test.git'
+      url   : 'ssh://git@domain:port/repo_path.git'
       //...
       ]
     ```
@@ -44,8 +44,8 @@ The repository is now ready with all `bikeshedding work` configured.
     .
     ├── lib                     # An `android-library` sub-project containing actual implementation.
     ├── sample                  # An `android-application` to instrument/verify library functionalities.
-    ├── team-props              # Contains common dependencies and tools used across projects.
-    ├── build.gradle            # Root Project's `build.gradle` that applies tools from `team-props`.
+    ├── toolset              # Contains common dependencies and tools used across projects.
+    ├── build.gradle            # Root Project's `build.gradle` that applies tools from `toolset`.
     ├── settings.gradle         # Includes `lib` and `sample` sub-projects for compilation. 
     ├── gradle.properties       # Contains default properties for the project.
     ├── Jenkinsfile.groovy      # Configures Jenkins Pipeline
@@ -103,7 +103,7 @@ A `property file` that contains the details about the maven repositories to whic
 3. `releaseURLs` - List of Release URLs with positions corresponding to the repositoryNames specified above
 4. `credentials` - List of Credentials for Maven Repository with positions corresponding to the repositoryNames specified above. If no crendentials are needed, __a place holder (null;)__ MUST be used.
 
-## &#128193; `team-props` submodule(&#128279;)
+## &#128193; `toolset` submodule(&#128279;)
 
 This __MUST__ be a `submodule` of the created library project and should be one of the top-level directories of the project.
 It contains the following:

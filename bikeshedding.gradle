@@ -3,7 +3,7 @@
 afterEvaluate {
   exec {
     workingDir project.rootDir
-    commandLine "$project.rootDir/team-props/bikeshedding.sh", "$project.rootDir"
+    commandLine "$project.rootDir/toolset/bikeshedding.sh", "$project.rootDir"
   }
 }
 
@@ -48,7 +48,7 @@ allprojects {
     apply plugin: "com.diffplug.gradle.spotless" //Linting and Formatting
 
     detekt {
-      config = files("$rootDir/team-props/tools/detekt/default-detekt-config.yml")
+      config = files("$rootDir/toolset/tools/detekt/default-detekt-config.yml")
       filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
       //Optional baseline, uncomment & run gradle command detektBaseline to exclude existing issues
       //baseline = file("detekt-baseline.xml")

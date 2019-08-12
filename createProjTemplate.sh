@@ -1,5 +1,5 @@
 #!/bin/sh
-# This script MUST be in the root of team-props dir.
+# This script MUST be in the root of toolset dir.
 
 PROG_NAME=$(basename $0)
 #PROG_BASEDIR=$(dirname $0)
@@ -293,20 +293,20 @@ cp "$PROJECT_TEMPLATE_DIR/lib/publish.properties" "$WORKING_DIR/lib/publish.prop
 
 setup_git_scm()
 {
-#Copy remote url of team-props repository
+#Copy remote url of toolset repository
 #Remove .git
 #Initialize a brand new git repo
-#Copy .gitignore from team-props/project-template ?
-#Add team-props repo as submodule of the newly created repo
+#Copy .gitignore from toolset/project-template ?
+#Add toolset repo as submodule of the newly created repo
 #Stage all the changes ??
 TEAM_PROPS_DIR_NAME=$(basename $PROG_BASEDIR)
-if [[ $TEAM_PROPS_DIR_NAME != "team-props" ]]; then
-echo "moving $TEAM_PROPS_DIR_NAME to team-props"
-mv $TEAM_PROPS_DIR_NAME "$WORKING_DIR/team-props"
-TEAM_PROPS_DIR_NAME="team-props"
+if [[ $TEAM_PROPS_DIR_NAME != "toolset" ]]; then
+echo "moving $TEAM_PROPS_DIR_NAME to toolset"
+mv $TEAM_PROPS_DIR_NAME "$WORKING_DIR/toolset"
+TEAM_PROPS_DIR_NAME="toolset"
 fi
 git init
-git submodule add $TEAM_PROPS_REMOTE_URL "team-props"
+git submodule add $TEAM_PROPS_REMOTE_URL "toolset"
 git add --all
 #echo "TEAM_PROPS_REMOTE_URL = $TEAM_PROPS_REMOTE_URL, prog_dir= $(basename $PROG_BASEDIR)"
 }

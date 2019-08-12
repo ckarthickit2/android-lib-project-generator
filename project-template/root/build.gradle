@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-  apply from: "./team-props/dependencies.gradle"
+  apply from: "./toolset/dependencies.gradle"
   repositories {
     google()
     jcenter()
@@ -30,5 +30,5 @@ allprojects {
 //    delete rootProject.buildDir
 //}
 
-apply from: "./team-props/bikeshedding.gradle"
-apply from: "./team-props/android_publish.gradle"
+apply from: "./toolset/bikeshedding.gradle"
+apply from: "./toolset/android_publish.gradle"

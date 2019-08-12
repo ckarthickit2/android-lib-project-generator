@@ -2,6 +2,9 @@
 
 package templatepackage
 
+/**
+ * Information about the library such as version and name.
+ */
 object TemplateLibraryInfo {
 
   /**
