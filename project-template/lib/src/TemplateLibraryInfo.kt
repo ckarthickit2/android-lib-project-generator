@@ -13,7 +13,7 @@ object TemplateLibraryInfo {
    * The Minor version of the library
    */
   @SuppressWarnings("unused")
-  const val MINOR_VERSION: Int = 1
+  const val MINOR_VERSION: Int = 0
   /**
    * The Path version of the library
    */
