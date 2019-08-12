@@ -94,7 +94,7 @@ done
 set -- "${POSITIONAL[@]}" # restore positional parameters
 
 GROUP_PATH=`echo ${GROUP_NAME} | sed "s/\\./\\//g"`
-LIB_PROJ_NAME="${LIB_NAME}-lib"
+LIB_PROJ_NAME="att-${LIB_NAME}"
 LIB_PACKAGE_NAME="$( echo ${LIB_NAME} | sed s/-/_/g )"
 
 #Substitute pattern:
