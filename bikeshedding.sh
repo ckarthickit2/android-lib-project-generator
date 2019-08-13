@@ -1,5 +1,5 @@
 #!/bin/sh
-# This script MUST be in the root of team-props dir.
+# This script MUST be in the root of toolset dir.
 
 PROGNAME=$(basename $0)
 BASEDIR=$(dirname $0)

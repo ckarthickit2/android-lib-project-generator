@@ -2,6 +2,9 @@
 
 package templatepackage
 
+/**
+ * Information about the library such as version and name.
+ */
 object TemplateLibraryInfo {
 
   /**
@@ -13,7 +16,7 @@ object TemplateLibraryInfo {
    * The Minor version of the library
    */
   @SuppressWarnings("unused")
-  const val MINOR_VERSION: Int = 1
+  const val MINOR_VERSION: Int = 0
   /**
    * The Path version of the library
    */
