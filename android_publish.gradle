@@ -173,7 +173,7 @@ subprojects {
 /******************* UTILITY METHODS ******************************/
 def loadLibraryPropsToExt(Project project) {
   Properties libraryProps = loadProps(project, "library")
-  project.extensions.add("groupID", libraryProps.getProperty("groupID", "com.quickplay.nexgen"))
+  project.extensions.add("groupID", libraryProps.getProperty("groupID", "com.att.nexgen"))
   project.extensions.add("artifactID", libraryProps.getProperty("artifactID", "templatelib"))
   project.extensions.add("libraryInfoPath", libraryProps.getProperty("libraryInfoPath", ""))
   project.extensions.add("majorVersion", Integer.parseInt(libraryProps.getProperty("majorVersion", "1")))
