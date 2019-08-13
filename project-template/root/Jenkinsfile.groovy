@@ -37,7 +37,7 @@ pipeline {
     stage('Build Libraries') {
       steps {
         //sh  "yes | $ANDROID_HOME/tools/bin/sdkmanager build-tools;29.0.1"
-        sh "git submodule update --recursive"
+        sh "git submodule update --init --remote --recursive"
         sh "./gradlew clean && ./gradlew assemble -PisRelease=$IS_RELEASE"
       }
     }
