@@ -6,6 +6,10 @@ android {
   compileSdkVersion versions.androidCompile
   buildToolsVersion versions.androidBuildTools
 
+  compileOptions {
+    sourceCompatibility versions.javaVersion
+    targetCompatibility versions.javaVersion
+  }
 
   defaultConfig {
     minSdkVersion versions.androidMinSDK
@@ -20,6 +24,12 @@ android {
     }
   }
 
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+  kotlinOptions {
+    jvmTarget = versions.javaVersion
+  }
 }
 
 dependencies {

@@ -32,15 +32,12 @@ exit 0
 fi
 
 # Do formatting
-echo "running spotless apply and check..."
-./gradlew spotlessApply
-check_task_result
+echo "running spotless check..."
+# Let spotlessApply be done manually
+#./gradlew spotlessApply
+#check_task_result
 ./gradlew spotlessCheck
-check_task_result
-
-# Validate Kotlin code with detekt
-echo "running detekt..."
-./gradlew detekt --daemon
+echo "run './gradlew spotlessApply' if spotlessCheck failed"
 check_task_result $LINENO
 
 # Done

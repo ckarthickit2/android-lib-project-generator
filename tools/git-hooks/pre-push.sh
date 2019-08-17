@@ -31,6 +31,11 @@ staged_source_files=`git --no-pager diff --name-status --no-color --cached | awk
 # exit 0
 # fi
 
+# Validate Kotlin code with detekt
+echo "running detekt..."
+./gradlew detekt --daemon
+check_task_result $LINENO
+
 # Do linting
 echo "running debug lint"
 ./gradlew lintDebug

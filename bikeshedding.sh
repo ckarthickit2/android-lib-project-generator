@@ -50,6 +50,8 @@ copy_hook_if_modified "$BASEDIR/tools/git-hooks/pre-commit.sh" "$1/.git/hooks/pr
 
 copy_hook_if_modified "$BASEDIR/tools/git-hooks/pre-push.sh" "$1/.git/hooks/pre-push" "pre-push"
 
+copy_hook_if_modified "$BASEDIR/tools/git-hooks/commit-msg.sh" "$1/.git/hooks/commit-msg" "commit-msg"
+
 copy_hook_if_modified "$BASEDIR/tools/lint/lint.xml" "$1/lint.xml" "lint.xml"
 
 copy_hook_if_modified "$BASEDIR/tools/.editorconfig" "$1/.editorconfig" ".editorconfig"
