@@ -15,7 +15,7 @@ ext.versions = [
   'jacocoAndroidPlugin': '0.15.0',
   'spotlessPlugin'     : '3.23.1',
   'detektPlugin'       : '1.0.0-RC16',
-
+  'javaVersion'        : JavaVersion.VERSION_1_8.toString()
 ]
 
 ext.deps = [
