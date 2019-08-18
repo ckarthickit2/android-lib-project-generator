@@ -177,6 +177,7 @@ create_android_folder_tree_with_base()
   create_folder_tree_if_not_exists "$1/src/main/java/${GROUP_PATH}"
   create_folder_tree_if_not_exists "$1/src/main/res"
   create_folder_tree_if_not_exists "$1/src/test/java/${GROUP_PATH}"
+  create_folder_tree_if_not_exists "$1/src/test/resources"
 }
 
 # $1 directorypath
@@ -270,9 +271,18 @@ validate_last_command_result "$LINENO: lib/TemplateLibraryInfo handling failed"
 
 #Handle lib/AndroidManifest.xml
 generate_file_from_template_with_multi_patterns \
-"s/templatepackage/${GROUP_NAME}/g;s/templatelib/${LIB_PACKAGE_NAME}/g" \
+"\
+s/templatepackage/${GROUP_NAME}/g;\
+s/templatelib/${LIB_PACKAGE_NAME}/g\
+" \
 "$PROJECT_TEMPLATE_DIR/lib/AndroidManifest.xml" "$WORKING_DIR/lib/src/main/AndroidManifest.xml"
 validate_last_command_result "$LINENO: lib/AndroidManifest handling failed"
+
+#Handle lib/src/test/resources/junit-platform.properties
+cp \
+"$PROJECT_TEMPLATE_DIR/lib/src/test/resources/junit-platform.properties" \
+"$WORKING_DIR/lib/src/test/resources/junit-platform.properties"
+validate_last_command_result "$LINENO: lib/src/test/resources/junit-platform.properties handling failed"
 
 #Handle lib/build.gradle
 cp "$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"

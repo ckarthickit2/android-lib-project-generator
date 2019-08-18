@@ -5,6 +5,13 @@ apply plugin: 'kotlin-android-extensions'
 android {
   compileSdkVersion versions.androidCompile
   buildToolsVersion versions.androidBuildTools
+  compileOptions {
+    sourceCompatibility versions.javaVersion
+    targetCompatibility versions.javaVersion
+  }
+  kotlinOptions {
+    jvmTarget = versions.javaVersion
+  }
   defaultConfig {
     applicationId "templatepackage.templateapp"
     minSdkVersion versions.androidMinSDK
