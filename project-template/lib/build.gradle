@@ -11,6 +11,11 @@ android {
     targetCompatibility versions.javaVersion
   }
 
+  kotlinOptions {
+    jvmTarget = versions.javaVersion
+  }
+
+
   defaultConfig {
     minSdkVersion versions.androidMinSDK
     targetSdkVersion versions.androidTargetSDK
@@ -21,6 +26,14 @@ android {
     release {
       minifyEnabled false
       proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+    }
+  }
+
+  //https://www.lordcodes.com/posts/testing-on-android-using-junit-5
+  //If our unit tests are only going to be ran on the JVM, no Robolectric or Android required
+  testOptions{
+    unitTests.all {
+      useJUnitPlatform()
     }
   }
 
@@ -35,4 +48,9 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "${deps.kotlin.stdLib.jdk8}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
+  testImplementation "${deps.junitJupiter.api}" //junit5
+  testImplementation "${deps.junitJupiter.params}"
+  testRuntimeOnly("${deps.junitJupiter.runtimeLauncher}")
+  testRuntimeOnly("${deps.junitJupiter.runtimeEngine}")
+  testRuntimeOnly("${deps.junitJupiter.runtimeVintageEngine}")
 }
