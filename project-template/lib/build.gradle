@@ -48,6 +48,7 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "${deps.kotlin.stdLib.jdk8}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
+  implementation "${deps.kotlin.coroutines.core}:$versions.kotlinCoroutines" //kotlinx-coroutines-core
   testImplementation "${deps.junitJupiter.api}" //junit5
   testImplementation "${deps.junitJupiter.params}"
   testRuntimeOnly("${deps.junitJupiter.runtimeLauncher}")
