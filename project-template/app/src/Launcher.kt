@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import templatepackage.templateapp.R
-//import templatepackage.TemplateLibraryInfo
+// import templatepackage.TemplateLibraryInfo
 
 class Launcher : AppCompatActivity() {
 

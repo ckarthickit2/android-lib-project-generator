@@ -2,9 +2,12 @@
 
 package templatepackage
 
+import androidx.annotation.Keep
+
 /**
  * Information about the library such as version and name.
  */
+@Keep
 object TemplateLibraryInfo {
 
   /**

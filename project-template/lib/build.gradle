@@ -23,15 +23,22 @@ android {
   }
 
   buildTypes {
-    release {
+    debug {
+      debuggable true
       minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      proguardFiles getDefaultProguardFile('proguard-android.txt')
+    }
+    release {
+      debuggable false
+      minifyEnabled true
+      //~/Library/Android/sdk/tools/proguard -> Default Proguard Location on MAC
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-release.pro'
     }
   }
 
   //https://www.lordcodes.com/posts/testing-on-android-using-junit-5
   //If our unit tests are only going to be ran on the JVM, no Robolectric or Android required
-  testOptions{
+  testOptions {
     unitTests.all {
       useJUnitPlatform()
     }
@@ -49,7 +56,12 @@ dependencies {
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "${deps.kotlin.stdLib.jdk8}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
   implementation "${deps.kotlin.coroutines.core}:$versions.kotlinCoroutines" //kotlinx-coroutines-core
-  testImplementation "${deps.junitJupiter.api}" //junit5
+
+  //android specific annotations
+  implementation "${deps.androidx.annotation}"
+
+  //junit5
+  testImplementation "${deps.junitJupiter.api}"
   testImplementation "${deps.junitJupiter.params}"
   testRuntimeOnly("${deps.junitJupiter.runtimeLauncher}")
   testRuntimeOnly("${deps.junitJupiter.runtimeEngine}")
