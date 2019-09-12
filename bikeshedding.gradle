@@ -44,29 +44,29 @@ allprojects {
 
   //apply only for library projects
   //project.plugins.withId('com.android.library') {
-    apply plugin: 'io.gitlab.arturbosch.detekt' //Static Analysis
-    apply plugin: "com.diffplug.gradle.spotless" //Linting and Formatting
+  apply plugin: 'io.gitlab.arturbosch.detekt' //Static Analysis
+  apply plugin: "com.diffplug.gradle.spotless" //Linting and Formatting
 
-    detekt {
-      config = files("$rootDir/toolset/tools/detekt/default-detekt-config.yml")
-      filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
-      //Optional baseline, uncomment & run gradle command detektBaseline to exclude existing issues
-      //baseline = file("detekt-baseline.xml")
-    }
+  detekt {
+    config = files("$rootDir/toolset/tools/detekt/default-detekt-config.yml")
+    filters = ".*build.*,.*/resources/.*,.*/tmp/.*"
+    //Optional baseline, uncomment & run gradle command detektBaseline to exclude existing issues
+    //baseline = file("detekt-baseline.xml")
+  }
 
-    spotless {
-      java {
-        target '**/*.java'
-        encoding 'Cp1252' // java will have Cp1252
-      }
-      kotlin {
-        target '**/*.kt'
-        ktlint('0.32.0').userData(['indent_size': "2", "continuation_indent_size": "2"])
-        trimTrailingWhitespace()
-      }
-      cpp {
-        target '**/*.cpp', '**/*.c'
-      }
+  spotless {
+    java {
+      target '**/*.java'
+      encoding 'Cp1252' // java will have Cp1252
     }
+    kotlin {
+      target '**/*.kt'
+      ktlint('0.32.0').userData(['indent_size': "2", "continuation_indent_size": "2", "end_of_line": "lf"])
+      trimTrailingWhitespace()
+    }
+    cpp {
+      target '**/*.cpp', '**/*.c'
+    }
+  }
   //}
 }

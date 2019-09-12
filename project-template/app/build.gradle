@@ -2,6 +2,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
+repositories {
+  flatDir {
+    dirs "$rootDir/generated"
+  }
+}
+
 android {
   compileSdkVersion versions.androidCompile
   buildToolsVersion versions.androidBuildTools
@@ -19,16 +25,32 @@ android {
     versionCode 1
     versionName "1.0"
   }
+  signingConfigs {
+    Default {
+      keyAlias 'attnexgen'
+      keyPassword 'attnexgen'
+      storeFile file('demo-keystore.jks')
+      storePassword 'attnexgen'
+    }
+  }
   buildTypes {
     release {
-      minifyEnabled false
-      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+      minifyEnabled true
+      //~/Library/Android/sdk/tools/proguard -> Default Proguard Location on MAC
+      proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-release.pro'
+      signingConfig signingConfigs.Default
     }
   }
 }
 
 dependencies {
   implementation project(path: ':templatelib')
+  /*
+   * un-comment the below code and copy release version of the library to $rootDir/generated folder to verify proper
+   * obfuscation
+   */
+  //debugImplementation project(path: ':templatelib')
+  //releaseImplementation(name:'templatelib-release', ext:'aar')
   implementation fileTree(dir: 'libs', include: ['*.jar'])
   implementation "${deps.kotlin.stdLib.jdk8}:$versions.kotlin" //org.jetbrains.kotlin:kotlin-stdlib-jdk7
   implementation 'androidx.appcompat:appcompat:1.0.2'

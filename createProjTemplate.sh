@@ -215,6 +215,9 @@ setup_sample_app_project()
 create_folder_tree_if_not_exists "$WORKING_DIR/sample"
 create_android_folder_tree_with_base "$WORKING_DIR/sample"
 
+#Plain Copy of resources
+cp -R "$PROJECT_TEMPLATE_DIR/app/demo-keystore.jks" "$WORKING_DIR/sample/demo-keystore.jks"
+cp -R "$PROJECT_TEMPLATE_DIR/app/proguard-release.pro" "$WORKING_DIR/sample/proguard-release.pro"
 #Handle app/res folder
 cp -R "$PROJECT_TEMPLATE_DIR/app/res/" "$WORKING_DIR/sample/src/main/res"
 generate_file_from_template "templateapp" "${LIB_PROJ_NAME}-demo" \
@@ -258,6 +261,9 @@ setup_library_project()
 {
 create_folder_tree_if_not_exists "$WORKING_DIR/lib"
 create_android_folder_tree_with_base "$WORKING_DIR/lib"
+
+#Plain Copy of resources
+cp -R "$PROJECT_TEMPLATE_DIR/lib/proguard-release.pro" "$WORKING_DIR/lib/proguard-release.pro"
 
 #Handle lib/TemplateLibraryInfo.kt
 generate_file_from_template_with_multi_patterns \

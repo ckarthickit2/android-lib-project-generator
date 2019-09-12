@@ -18,12 +18,16 @@ ext.versions = [
   'detektPlugin'                : '1.0.0-RC16',
   'javaVersion'                 : JavaVersion.VERSION_1_8.toString(),
   'junitJupiter'                : '5.5.1',
-  'junitJupiterPlatformLauncher': '1.5.1'
+  'junitJupiterPlatformLauncher': '1.5.1',
+  'mockkVersion'                : '1.9.3'
 ]
 
 ext.deps = [
   'android'     : [
     'gradlePlugin': 'com.android.tools.build:gradle:3.4.2'
+  ],
+  'androidx'    : [
+    'annotation': 'androidx.annotation:annotation:1.1.0'
   ],
   'kotlin'      : [
     'gradlePlugin': "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
@@ -34,8 +38,8 @@ ext.deps = [
       'jdk6'  : "org.jetbrains.kotlin:kotlin-stdlib",
       'js'    : "org.jetbrains.kotlin:kotlin-stdlib-js",
     ],
-    'coroutines' : [
-      'core'  : 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
+    'coroutines'  : [
+      'core': 'org.jetbrains.kotlinx:kotlinx-coroutines-core'
     ],
     'test'        : [
       'common'     : "org.jetbrains.kotlin:kotlin-test-common",
@@ -87,5 +91,8 @@ ext.deps = [
     'runtimeLauncher'     : "org.junit.platform:junit-platform-launcher:${versions.junitJupiterPlatformLauncher}",
     'runtimeEngine'       : "org.junit.jupiter:junit-jupiter-engine:${versions.junitJupiter}",
     'runtimeVintageEngine': "org.junit.vintage:junit-vintage-engine:${versions.junitJupiter}",
+  ],
+  'mockk'       : [
+    'library': "io.mockk:mockk:${versions.mockkVersion}"
   ],
 ]
