@@ -152,6 +152,15 @@ cp "$PROJECT_TEMPLATE_DIR/root/build.gradle" "$WORKING_DIR"
 setup_settings_gradle_script
 cat "$PROJECT_TEMPLATE_DIR/root/gradle.properties" >> "$WORKING_DIR/gradle.properties"
 cp "$PROJECT_TEMPLATE_DIR/root/Jenkinsfile.groovy" "$WORKING_DIR"
+
+# Handle root/README.md
+generate_file_from_template_with_multi_patterns \
+"\
+s/templatepackage/${GROUP_NAME}/g;\
+s/templatelib/${LIB_CLASS_NAME}/g\
+" \
+"$PROJECT_TEMPLATE_DIR/root/README.md" "$WORKING_DIR/README.md"
+validate_last_command_result "$LINENO: root/README.md handling failed"
 }
 
 setup_settings_gradle_script()
@@ -291,7 +300,14 @@ cp \
 validate_last_command_result "$LINENO: lib/src/test/resources/junit-platform.properties handling failed"
 
 #Handle lib/build.gradle
-cp "$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"
+generate_file_from_template_with_multi_patterns \
+"\
+s/templatepackage/${GROUP_NAME}/g;\
+s/templatelib/${LIB_PACKAGE_NAME}/g\
+" \
+"$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"
+validate_last_command_result "$LINENO: lib/build.gradle handling failed"
+#cp "$PROJECT_TEMPLATE_DIR/lib/build.gradle" "$WORKING_DIR/lib/build.gradle"
 
 #Handle lib/library.properties
 generate_file_from_template_with_multi_patterns \
