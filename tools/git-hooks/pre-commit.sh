@@ -15,7 +15,7 @@ if [[ "$?" -ne 0 ]] ; then
 fi
 }
 
-update_staged_files() {
+compute_staged_files() {
 staged_kotlin_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~ /\.kts|\.kt/ { print $2}'`
 staged_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" { print $2}'`
 staged_test_files=`git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $2 ~  /\/test\// && $2 ~ /\.kt|\.java/ { print $2}'`
@@ -24,7 +24,7 @@ staged_source_files=`git --no-pager diff --name-status --no-color --cached | awk
 
 #main() {
 
-update_staged_files
+compute_staged_files
 
 if [[ -z "$staged_source_files" ]];then
 echo "no source files.. skipping pre-commit hooks"
@@ -36,8 +36,9 @@ echo "running spotless check..."
 # Let spotlessApply be done manually
 #./gradlew spotlessApply
 #check_task_result
-./gradlew spotlessCheck
-echo "run './gradlew spotlessApply' if spotlessCheck failed"
+./gradlew spotlessApply
+#add changes applied by spotless on staged files (if any)
+git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" { print $2}' | xargs git add
 check_task_result $LINENO
 
 # Done
