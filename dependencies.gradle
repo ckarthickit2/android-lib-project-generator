@@ -75,6 +75,9 @@ ext.deps = [
   'jacoco'      : [
     'gradlePlugin': "com.vanniktech:gradle-android-junit-jacoco-plugin:${versions.jacocoAndroidPlugin}"
   ],
+  'jacocoBadge' :[
+    'gradlePlugin': "com.github.dawnwords:jacoco-badge-gradle-plugin:0.1.0"
+  ],
   'detekt'      : [
     'gradlePlugin': "io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${versions.detektPlugin}"
   ],

@@ -43,8 +43,12 @@ check_task_result $LINENO
 
 # Run unit tests
 echo "running unit tests"
-./gradlew test --daemon
+./gradlew jacocoTestReportDebug generateJacocoBadge --daemon
 check_task_result $LINENO
+
+#Update README.md
+git add README.md
+git commit --amend --no-edit
 
 #done
 echo "pre-push checks passed!"
