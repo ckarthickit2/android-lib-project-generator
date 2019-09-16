@@ -3,6 +3,8 @@ apply plugin: 'kotlin-android'
 //apply plugin: 'java'
 //apply plugin: "org.jetbrains.kotlin.jvm"
 apply plugin: 'org.jetbrains.dokka'
+apply plugin: 'com.github.dawnwords.jacoco.badge'
+
 android {
   compileSdkVersion versions.androidCompile
   buildToolsVersion versions.androidBuildTools
@@ -88,6 +90,10 @@ dokka {
 
 }
 
+jacocoBadgeGenSetting {
+  jacocoReportPath  "$buildDir/reports/jacoco/debug/jacoco.xml"
+  readmePath "$rootDir/README.md"
+}
 
 tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
   kotlinOptions {
