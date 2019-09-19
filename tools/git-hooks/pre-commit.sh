@@ -38,7 +38,7 @@ echo "running spotless check..."
 #check_task_result
 ./gradlew spotlessApply
 #add changes applied by spotless on staged files (if any)
-git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" { print $2}' | xargs git add
+git --no-pager diff --name-status --no-color --cached | awk '$1 != "D" && $1 !~ /^R/ { print $2}' | xargs git add
 check_task_result $LINENO
 
 # Done
