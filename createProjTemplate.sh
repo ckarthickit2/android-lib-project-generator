@@ -284,6 +284,16 @@ s/templatepackage/${GROUP_NAME}/g\
 "$WORKING_DIR/lib/src/main/java/${GROUP_PATH}/${LIB_CLASS_NAME}LibraryInfo.kt"
 validate_last_command_result "$LINENO: lib/TemplateLibraryInfo handling failed"
 
+#Handle lib/src/test/TemplateLibraryInfoTest.kt
+generate_file_from_template_with_multi_patterns \
+"\
+s/Template/${LIB_CLASS_NAME}/g;\
+s/templatepackage/${GROUP_NAME}/g\
+" \
+"$PROJECT_TEMPLATE_DIR/lib/src/test/TemplateLibraryInfoTest.kt" \
+"$WORKING_DIR/lib/src/test/java/${GROUP_PATH}/${LIB_CLASS_NAME}LibraryInfoTest.kt"
+validate_last_command_result "$LINENO: lib/src/test/TemplateLibraryInfoTest.kt handling failed"
+
 #Handle lib/AndroidManifest.xml
 generate_file_from_template_with_multi_patterns \
 "\
